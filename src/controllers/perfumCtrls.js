@@ -25,6 +25,29 @@ export const getPerfums = async (req, res) => {
   }
 };
 
+export const deletePerfum = async (req, res) => {
+  const { id } = req.params;
+  let updateData = {};
+  updateData = updateData.isActive = false;
+  try {
+    const updatedPerfum = await Perfum.findByIdAndUpdate(
+      id,
+      { $set: { isActive: false } },
+      { new: true }
+    );
+    if (!updatedPerfum) {
+      return res.status(404).json({ ok: false, message: "Perfume not found" });
+    }
+    console.log(updatedPerfum);
+    res.status(200).json({ ok: true });
+  } catch (error) {
+    console.log("e", error);
+    return res
+      .status(404)
+      .json({ ok: false, message: "Error trying to delete the perfum", error });
+  }
+};
+
 export const postPerfum = async (req, res) => {
   // console.log("hello");
   let image = req.file.path;
@@ -38,6 +61,7 @@ export const postPerfum = async (req, res) => {
     middleNotes,
     baseNotes,
     brand,
+    priceDecant,
   } = req.body;
 
   if (
@@ -48,7 +72,8 @@ export const postPerfum = async (req, res) => {
     !topNotes ||
     !middleNotes ||
     !baseNotes ||
-    !brand
+    !brand ||
+    !priceDecant
   ) {
     await deleteFile(image);
     return res.status(400).json({
@@ -71,6 +96,7 @@ export const postPerfum = async (req, res) => {
       perfum.name = name;
       perfum.description = description;
       perfum.price = price;
+      perfum.priceDecant = priceDecant;
       perfum.imageURL = imageUploaded.imageupload.url;
       perfum.quantity = quantity;
       perfum.topNotes = topNotes;
@@ -104,4 +130,18 @@ export const postPerfum = async (req, res) => {
       message: "error in database",
     });
   }
+};
+
+export const updatePerfum = async (req, res) => {
+  if (req.file) {
+    return res.status(200).json({
+      ok: true,
+      message: "File sent",
+    });
+  }
+
+  return res.status(200).json({
+    ok: true,
+    message: "File did not send",
+  });
 };

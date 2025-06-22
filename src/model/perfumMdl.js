@@ -37,11 +37,9 @@ const perfumSchema = new mongoose.Schema({
   },
   is100ml: {
     type: Boolean,
-    default: true,
   },
   isDecant: {
     type: Boolean,
-    default: true,
   },
   brand: {
     type: String,

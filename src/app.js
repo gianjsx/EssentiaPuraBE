@@ -17,7 +17,16 @@ const app = express();
 app.set("port", config.port);
 
 //MIDDLEWARE
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      callback(null, true); // Dynamically allow any origin
+    }, // Allow only these origins
+    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    credentials: true, // Allow cookies/tokens
+  })
+);
 app.use(express.json());
 app.use(morgan("short"));
 app.use(
