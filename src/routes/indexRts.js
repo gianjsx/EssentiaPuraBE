@@ -5,7 +5,11 @@ import {
   deletePerfum,
   updatePerfum,
 } from "../controllers/perfumCtrls.js";
-import { getBrands, postBrand } from "../controllers/brandCtrls.js";
+import {
+  getBrands,
+  postBrand,
+  deleteBrand,
+} from "../controllers/brandCtrls.js";
 
 const router = Router();
 
@@ -18,5 +22,6 @@ router.put("/perfumsupdate/:id", updatePerfum);
 //BRAND
 router.get("/brands", getBrands);
 router.post("/brand", postBrand);
+router.put("/brand/:id", deleteBrand);
 
 export default router;

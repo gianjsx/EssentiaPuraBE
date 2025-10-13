@@ -10,11 +10,11 @@ const perfumSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    reuired: [true, "Price required"],
+    required: [true, "Price required"],
   },
   priceDecant: {
     type: Number,
-    reuired: [true, "Price required"],
+    required: [true, "Price required"],
   },
   imageURL: {
     type: String,

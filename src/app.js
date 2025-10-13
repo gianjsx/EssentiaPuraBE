@@ -17,14 +17,13 @@ const app = express();
 app.set("port", config.port);
 
 //MIDDLEWARE
+
+// const allowedOrigins = ["https://essentiapura.xyz", "http://localhost:5173/"];
 app.use(
   cors({
-    origin: (origin, callback) => {
-      callback(null, true); // Dynamically allow any origin
-    }, // Allow only these origins
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allowed methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
-    credentials: true, // Allow cookies/tokens
+    origin: ["https://essentiapura.xyz", "http://localhost:5173"], // allow all origins
+    methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"], // allowed headers
   })
 );
 app.use(express.json());

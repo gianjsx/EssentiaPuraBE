@@ -69,3 +69,31 @@ export const postBrand = async (req, res) => {
     });
   }
 };
+
+export const deleteBrand = async (req, res) => {
+  const { id } = req.params;
+  // // let updateData = {};
+  // updateData = updateData.isActive =
+  try {
+    const updateBrand = await Brand.findByIdAndUpdate(
+      id,
+      {
+        $set: { isActive: false },
+      },
+      { new: true }
+    );
+    if (!updateBrand) {
+      return res
+        .status(400)
+        .json({ ok: false, message: "Error trying to deleted a brand" });
+    }
+    return res
+      .status(200)
+      .json({ ok: true, message: "Success delete a brand" });
+  } catch (error) {
+    console.log("BE error trying delete a brand");
+    return res
+      .status(400)
+      .json({ ok: false, message: "Error trating to delete a brand" });
+  }
+};

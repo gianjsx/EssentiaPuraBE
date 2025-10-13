@@ -7,7 +7,7 @@ export const getPerfums = async (req, res) => {
       isActive: true,
     });
     if (!perfumDB) {
-      return res.status(500).json({
+      return res.status(400).json({
         ok: false,
         message: "Error trying to ger perfums",
       });
@@ -36,20 +36,22 @@ export const deletePerfum = async (req, res) => {
       { new: true }
     );
     if (!updatedPerfum) {
-      return res.status(404).json({ ok: false, message: "Perfume not found" });
+      return res.status(400).json({ ok: false, message: "Perfume not found" });
     }
     console.log(updatedPerfum);
-    res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, message: "Perfume Deleted" });
   } catch (error) {
     console.log("e", error);
     return res
-      .status(404)
+      .status(400)
       .json({ ok: false, message: "Error trying to delete the perfum", error });
   }
 };
 
 export const postPerfum = async (req, res) => {
   // console.log("hello");
+  console.log(req.body);
+  console.log(req.file);
   let image = req.file.path;
 
   let {
@@ -62,6 +64,8 @@ export const postPerfum = async (req, res) => {
     baseNotes,
     brand,
     priceDecant,
+    is100ml,
+    isDecant,
   } = req.body;
 
   if (
@@ -103,6 +107,8 @@ export const postPerfum = async (req, res) => {
       perfum.middleNotes = middleNotes;
       perfum.baseNotes = baseNotes;
       perfum.brand = brand;
+      perfum.is100ml = is100ml;
+      perfum.isDecant = isDecant;
       const perfumDB = await perfum.save();
       if (!perfumDB) {
         await deleteFile(image);
@@ -133,15 +139,111 @@ export const postPerfum = async (req, res) => {
 };
 
 export const updatePerfum = async (req, res) => {
-  if (req.file) {
-    return res.status(200).json({
-      ok: true,
-      message: "File sent",
-    });
+  let {
+    name,
+    description,
+    price,
+    quantity,
+    topNotes,
+    middleNotes,
+    baseNotes,
+    brand,
+    priceDecant,
+    is100ml,
+    isDecant,
+  } = req.body;
+  const { id } = req.params;
+
+  // console.log(req.body);
+  // console.log(req.file);
+  if (!req.file) {
+    // THIS CODE I WHEN THE CLIENT DOES NOT SEND THE IMAGE
+    try {
+      const updatedPerfum = await Perfum.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            name,
+            description,
+            price,
+            priceDecant,
+            quantity,
+            topNotes,
+            middleNotes,
+            baseNotes,
+            is100ml,
+            isDecant,
+            brand,
+          },
+        },
+        { new: true }
+      );
+      if (!updatedPerfum) {
+        return res
+          .status(404)
+          .json({ ok: false, message: "Error trying to update perfum" });
+      }
+      return res.status(200).json({ ok: true, message: "Perfum Updated " });
+    } catch (error) {
+      return res
+        .status(404)
+        .json({ ok: false, message: "Error trying to update perfum" });
+    }
+    // return res.status(200).json({
+    //   ok: true,
+    //   message: "File did not send",
+    // });
   }
 
-  return res.status(200).json({
-    ok: true,
-    message: "File did not send",
-  });
+  //THIS CODE IS WHEN THE CLIENT SEND THE IMAGE
+  let image = req.file.path;
+  try {
+    const imageUploaded = await uploadImage(image);
+    deleteFile();
+    if (!imageUploaded.ok) {
+      return res
+        .status(400)
+        .json({ ok: false, message: imageUploaded.message });
+    }
+    try {
+      const updatedPerfum = await Perfum.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            name,
+            description,
+            price,
+            priceDecant,
+            quantity,
+            topNotes,
+            middleNotes,
+            baseNotes,
+            is100ml,
+            isDecant,
+            brand,
+            imageURL: imageUploaded.imageupload.url,
+          },
+        },
+        { new: true }
+      );
+      if (!updatedPerfum) {
+        await deleteFile(image);
+        return res
+          .status(404)
+          .json({ ok: false, message: "Error trying to update perfum" });
+      }
+      await deleteFile(image);
+      return res.status(200).json({ ok: true, message: "Perfum Updated " });
+    } catch (error) {
+      await deleteFile(image);
+      return res
+        .status(404)
+        .json({ ok: false, message: "Error trying to update perfum" });
+    }
+  } catch (error) {
+    await deleteFile(image);
+    return res
+      .status(400)
+      .json({ ok: false, message: "Error trying to update the parfum" });
+  }
 };
